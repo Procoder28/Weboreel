@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape the Page</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --text: #c8c8c0;
+    --muted: #454540;
+    --accent: #e8e4d0;
+    --neon: #a8ff78;
+    --neon2: #78ffe8;
+    --danger: #ff4444;
+    --warn: #ffaa00;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    overflow: hidden;
+    cursor: crosshair;
+  }
+
+  body.custom-cursor { cursor: none; }
+  body.custom-cursor * { cursor: none; }
+
+  #cursor {
+    position: fixed;
+    width: 16px; height: 16px;
+    border: 1px solid var(--neon);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, border-color 0.2s;
+    mix-blend-mode: difference;
+  }
+  #cursor.big { width: 40px; height: 40px; border-color: var(--neon2); }
+  #cursor.hidden { opacity: 0; }
+
+  #cursor-dot {
+    position: fixed;
+    width: 4px; height: 4px;
+    background: var(--neon);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: difference;
+  }
+
+  /* SCREENS */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s;
+    padding: 2rem;
+  }
+  .screen.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* SCANLINES */
+  .screen::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* NOISE */
+  #noise {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 90;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* TYPOGRAPHY */
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    text-align: center;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+  p { font-size: 0.9rem; line-height: 1.7; color: var(--text); }
+  .muted { color: var(--muted); font-size: 0.75rem; letter-spacing: 0.1em; }
+  .mono { font-family: 'Share Tech Mono', monospace; }
+
+  /* BUTTONS */
+  .btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: 1px solid var(--muted);
+    background: transparent;
+    color: var(--text);
+    padding: 0.9rem 2.5rem;
+    cursor: crosshair;
+    transition: border-color 0.3s, color 0.3s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: translateY(100%);
+    transition: transform 0.3s;
+    z-index: -1;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--bg); }
+  .btn:hover::after { transform: translateY(0); }
+  .btn:active { transform: scale(0.97); }
+  .btn.disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn.disabled:hover { border-color: var(--muted); color: var(--text); }
+  .btn.disabled:hover::after { transform: translateY(100%); }
+
+  /* HUD */
+  #hud {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  #hud.visible { opacity: 1; }
+  #hud span { font-size: 0.7rem; letter-spacing: 0.15em; color: var(--muted); }
+  #level-indicator { color: var(--neon); }
+  #timer { font-variant-numeric: tabular-nums; }
+
+  /* PROGRESS BAR */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--neon);
+    width: 0%;
+    transition: width 0.5s;
+    z-index: 200;
+    box-shadow: 0 0 8px var(--neon);
+  }
+
+  /* MESSAGE TOAST */
+  #toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(2rem);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 500;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ---- LEVEL 0: LANDING ---- */
+  #screen-0 { gap: 2.5rem; }
+  #screen-0 .tagline { font-size: 0.8rem; letter-spacing: 0.3em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+  #screen-0 h1 { margin-bottom: 0; }
+  #screen-0 .subtitle { color: var(--muted); font-size: 0.85rem; text-align: center; line-height: 1.8; }
+
+  /* ---- LEVEL 1 ---- */
+  #screen-1 { gap: 2rem; text-align: center; }
+  #l1-next { }
+  #l1-hint { position: absolute; bottom: 30%; right: 15%; color: var(--muted); font-size: 0.7rem; letter-spacing: 0.1em; opacity: 0; transition: opacity 0.5s; }
+  #l1-hint:hover { color: var(--neon); opacity: 1 !important; }
+  #l1-secret {
+    position: absolute;
+    bottom: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: transparent;
+    letter-spacing: 0.2em;
+    cursor: crosshair;
+    padding: 0.5rem 1rem;
+    transition: color 0.5s;
+  }
+  #l1-secret:hover { color: var(--neon2); }
+  .blink { animation: blink 1.4s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---- LEVEL 2 ---- */
+  #screen-2 { gap: 1.5rem; text-align: center; position: relative; }
+  #l2-text {
+    font-size: 1.1rem;
+    color: var(--text);
+    cursor: crosshair;
+    transition: color 0.3s;
+    padding: 0.5rem;
+  }
+  #l2-invisible {
+    position: absolute;
+    top: 35%;
+    right: 20%;
+    width: 80px; height: 40px;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: crosshair;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  #l2-invisible:hover {
+    border-color: var(--neon);
+    background: rgba(168,255,120,0.05);
+  }
+  #l2-mover {
+    position: absolute;
+    left: 20%;
+    top: 60%;
+    width: 10px; height: 10px;
+    background: var(--muted);
+    border-radius: 50%;
+    cursor: crosshair;
+    transition: left 0.8s ease, top 0.8s ease;
+  }
+
+  /* ---- LEVEL 3 ---- */
+  #screen-3 { gap: 2rem; text-align: center; }
+  #l3-drag-zone {
+    position: relative;
+    width: 300px; height: 100px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #l3-drag-zone::after {
+    content: 'DRAG ACROSS';
+    position: absolute;
+    right: 1rem;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+  }
+  #l3-draggable {
+    width: 60px; height: 60px;
+    border: 1px solid var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    color: var(--muted);
+    cursor: grab;
+    transition: border-color 0.3s, color 0.3s;
+    position: absolute;
+    left: 1rem;
+  }
+  #l3-draggable:active { cursor: grabbing; }
+  #l3-draggable:hover { border-color: var(--accent); color: var(--accent); }
+  #l3-reveal { 
+    position: absolute;
+    right: 1rem;
+    width: 60px; height: 60px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--neon);
+    color: var(--bg);
+    font-size: 0.7rem;
+    opacity: 0;
+    transition: opacity 0.4s;
+    cursor: crosshair;
+  }
+  #l3-double {
+    padding: 0.7rem 1.5rem;
+    border: 1px dashed var(--border);
+    font-size: 0.75rem;
+    color: var(--muted);
+    cursor: crosshair;
+    letter-spacing: 0.15em;
+  }
+  #l3-double:hover { border-color: var(--muted); color: var(--text); }
+
+  /* ---- LEVEL 4 ---- */
+  #screen-4 { gap: 2rem; text-align: center; }
+  #l4-tracker {
+    position: fixed;
+    top: 2rem; right: 2rem;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  #l4-shadow-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    position: relative;
+    cursor: crosshair;
+    transition: text-shadow 0.1s;
+  }
+  #l4-move-btn {
+    position: fixed;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--muted);
+    background: var(--bg);
+    color: var(--text);
+    cursor: crosshair;
+    letter-spacing: 0.15em;
+    transition: all 0.2s;
+  }
+
+  /* ---- LEVEL 5 ---- */
+  #screen-5 { gap: 2rem; text-align: center; }
+  #glitch-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 7vw, 5rem);
+    font-weight: 800;
+    color: var(--accent);
+    position: relative;
+  }
+  #glitch-title::before,
+  #glitch-title::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    opacity: 0;
+  }
+  #glitch-title.glitching::before {
+    animation: glitch1 0.3s steps(2) forwards;
+    color: var(--neon);
+    clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+  }
+  #glitch-title.glitching::after {
+    animation: glitch2 0.3s steps(2) 0.05s forwards;
+    color: var(--danger);
+    clip-path: polygon(0 66%, 100% 66%, 100% 100%, 0 100%);
+  }
+  @keyframes glitch1 {
+    0% { opacity: 1; transform: translate(-3px, 0); }
+    50% { transform: translate(3px, 0); }
+    100% { opacity: 0; transform: translate(0, 0); }
+  }
+  @keyframes glitch2 {
+    0% { opacity: 1; transform: translate(3px, 0); }
+    50% { transform: translate(-3px, 0); }
+    100% { opacity: 0; transform: translate(0, 0); }
+  }
+  #l5-flash-btn {
+    position: fixed;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid var(--neon);
+    background: var(--bg);
+    color: var(--neon);
+    letter-spacing: 0.15em;
+    cursor: crosshair;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+    z-index: 300;
+  }
+  #l5-flash-btn.show { opacity: 1; pointer-events: all; }
+  #l5-flicker {
+    position: fixed;
+    inset: 0;
+    background: white;
+    pointer-events: none;
+    z-index: 400;
+    opacity: 0;
+    mix-blend-mode: overlay;
+  }
+
+  /* ---- LEVEL 6: FINAL ---- */
+  #screen-6 { gap: 2rem; text-align: center; }
+  #combo-zone {
+    position: relative;
+    width: 340px; height: 200px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  #combo-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  #countdown-ring {
+    position: absolute;
+    top: 0.5rem; right: 0.5rem;
+    width: 36px; height: 36px;
+  }
+  #countdown-ring circle { fill: none; stroke: var(--border); stroke-width: 2; }
+  #countdown-ring .progress { stroke: var(--neon); stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 0.1s linear; stroke-linecap: round; }
+  #final-hidden {
+    position: absolute;
+    bottom: 1rem; right: 1rem;
+    width: 50px; height: 50px;
+    opacity: 0;
+    cursor: crosshair;
+    background: var(--neon);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem;
+    color: var(--bg);
+    letter-spacing: 0.1em;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  #final-hidden.revealed { opacity: 1; pointer-events: all; }
+  #combo-drag {
+    width: 50px; height: 50px;
+    border: 1px solid var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    color: var(--muted);
+    cursor: grab;
+    position: absolute;
+    left: 1rem; bottom: 1rem;
+  }
+  #combo-target {
+    position: absolute;
+    top: 1rem; left: 50%; transform: translateX(-50%);
+    width: 50px; height: 50px;
+    border: 1px dashed var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em;
+  }
+  #combo-target.locked { border-color: var(--neon); color: var(--neon); }
+
+  /* ---- FAKE FAIL ---- */
+  #screen-fail {
+    gap: 2rem; text-align: center;
+    background: var(--bg);
+  }
+  #screen-fail h1 { color: var(--danger); }
+
+  /* ---- ESCAPE SCREEN ---- */
+  #screen-escape { gap: 2rem; text-align: center; }
+  #escape-text {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 10vw, 7rem);
+    font-weight: 800;
+    color: var(--neon);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    animation: breathe 3s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  #stats-row {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    margin: 1rem 0;
+  }
+  .stat-box { text-align: center; }
+  .stat-label { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--muted); margin-bottom: 0.3rem; }
+  .stat-value { font-size: 1.5rem; color: var(--accent); font-family: 'Syne', sans-serif; font-weight: 700; }
+  #share-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+
+  /* GLITCH EFFECT */
+  .glitch-flicker {
+    animation: screenFlicker 0.15s steps(2);
+  }
+  @keyframes screenFlicker {
+    0% { filter: brightness(1); }
+    25% { filter: brightness(2) hue-rotate(90deg); }
+    50% { filter: brightness(0.5); }
+    75% { filter: brightness(3) hue-rotate(-90deg); }
+    100% { filter: brightness(1); }
+  }
+
+  /* SCAN REVEAL */
+  @keyframes scanReveal {
+    from { clip-path: inset(0 0 100% 0); }
+    to { clip-path: inset(0 0 0% 0); }
+  }
+  .scan-reveal { animation: scanReveal 0.6s ease forwards; }
+
+  /* HOVER DOT */
+  .hover-dot {
+    display: inline-block;
+    width: 4px; height: 4px;
+    background: var(--neon);
+    border-radius: 50%;
+    margin-left: 4px;
+    animation: blink 1s step-end infinite;
+  }
+
+  /* RIGHT CLICK MENU */
+  #ctx-menu {
+    position: fixed;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    min-width: 160px;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  #ctx-menu.show { opacity: 1; pointer-events: all; }
+  .ctx-item {
+    padding: 0.6rem 1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    cursor: crosshair;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s, color 0.2s;
+  }
+  .ctx-item:last-child { border-bottom: none; }
+  .ctx-item:hover { background: var(--border); color: var(--text); }
+  .ctx-item.secret { color: var(--neon); }
+  .ctx-item.secret:hover { background: rgba(168,255,120,0.1); }
+
+  /* PARTICLE */
+  .particle {
+    position: fixed;
+    width: 3px; height: 3px;
+    background: var(--neon);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 600;
+    animation: particleFly 0.8s ease-out forwards;
+  }
+  @keyframes particleFly {
+    to { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+  }
+
+  /* ATTEMPTS */
+  #attempts-display {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  #attempts-display.visible { opacity: 1; }
+
+  /* LEVEL TRANSITION */
+  #level-transition {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #level-transition.show { opacity: 1; pointer-events: all; }
+  #lt-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--neon);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+
+  /* WATCHING EYES */
+  #watching {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    opacity: 0;
+    transition: opacity 1s;
+  }
+  #watching.active { opacity: 1; }
+  .eye {
+    position: absolute;
+    width: 40px; height: 20px;
+    background: transparent;
+    border: 1px solid var(--muted);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .pupil {
+    width: 8px; height: 8px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: transform 0.1s;
+  }
+</style>
+</head>
+<body>
+
+<div id="noise"></div>
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+<div id="progress-bar"></div>
+<div id="hud">
+  <span id="level-indicator">LEVEL — 0</span>
+  <span id="timer">00:00</span>
+  <span id="attempts-text">ATTEMPTS: 0</span>
+</div>
+<div id="toast"></div>
+<div id="attempts-display">ATTEMPTS: 0</div>
+<div id="l4-tracker">CURSOR: 0, 0</div>
+<div id="l5-flicker"></div>
+<div id="ctx-menu">
+  <div class="ctx-item">Copy</div>
+  <div class="ctx-item">Inspect</div>
+  <div class="ctx-item">Save as...</div>
+  <div class="ctx-item secret" id="ctx-secret" style="display:none">Something feels wrong here</div>
+</div>
+<div id="level-transition"><span id="lt-text"></span></div>
+<div id="watching">
+  <div class="eye" style="top:15%;left:10%" id="eye1"><div class="pupil" id="p1"></div></div>
+  <div class="eye" style="top:20%;right:12%" id="eye2"><div class="pupil" id="p2"></div></div>
+  <div class="eye" style="bottom:25%;left:8%" id="eye3"><div class="pupil" id="p3"></div></div>
+  <div class="eye" style="bottom:20%;right:15%" id="eye4"><div class="pupil" id="p4"></div></div>
+</div>
+
+<!-- SCREEN 0: LANDING -->
+<div class="screen active" id="screen-0">
+  <div class="tagline">v1.0.0 — CLASSIFIED</div>
+  <h1>Escape<br>the Page.</h1>
+  <p class="subtitle">You are trapped on this page.<br>Find a way out.</p>
+  <button class="btn" id="begin-btn">Begin</button>
+  <div class="muted" style="margin-top:2rem; letter-spacing:0.15em">NO INSTRUCTIONS. NO HINTS. JUST EXPLORE.</div>
+</div>
+
+<!-- SCREEN 1: SOMETHING FEELS OFF -->
+<div class="screen" id="screen-1">
+  <div class="muted" style="letter-spacing:0.2em; margin-bottom:0.5rem">LEVEL 01</div>
+  <h2>Something Feels Off</h2>
+  <p style="text-align:center; max-width:400px; color:var(--muted)">There is a way forward.<br>This button is not it.</p>
+  <button class="btn disabled" id="l1-next" onclick="wrongClick()">Next →</button>
+  <div id="l1-hint" style="position:absolute; bottom:28%; right:12%; opacity:0.01">are you sure about that?</div>
+  <div id="l1-secret">this is not where you look</div>
+</div>
+
+<!-- SCREEN 2: LOOK CLOSER -->
+<div class="screen" id="screen-2">
+  <div class="muted" style="letter-spacing:0.2em; margin-bottom:0.5rem">LEVEL 02</div>
+  <h2>Look Closer</h2>
+  <div id="l2-text" data-clicks="0">The answer is in the text.</div>
+  <div id="l2-invisible" title=""></div>
+  <div id="l2-mover"></div>
+</div>
+
+<!-- SCREEN 3: BREAK THE RULES -->
+<div class="screen" id="screen-3">
+  <div class="muted" style="letter-spacing:0.2em; margin-bottom:0.5rem">LEVEL 03</div>
+  <h2>Break the Rules</h2>
+  <div id="l3-drag-zone">
+    <div id="l3-draggable" draggable="true">DRAG</div>
+    <div id="l3-reveal" id="l3-reveal">OPEN</div>
+  </div>
+  <div id="l3-double" ondblclick="l3DoubleClick()">Double-click me, maybe?</div>
+  <div class="muted" style="font-size:0.65rem; margin-top:1rem; opacity:0.4">Try everything.</div>
+</div>
+
+<!-- SCREEN 4: WATCHING -->
+<div class="screen" id="screen-4">
+  <div class="muted" style="letter-spacing:0.2em; margin-bottom:0.5rem">LEVEL 04</div>
+  <h2>The Page is Watching</h2>
+  <div id="l4-shadow-text">I SEE YOU</div>
+  <p style="color:var(--muted); font-size:0.8rem; text-align:center">Move the mouse to find the way.</p>
+  <div id="l4-move-btn" style="top:50%;left:50%;transform:translate(-50%,-50%)">FIND ME</div>
+</div>
+
+<!-- SCREEN 5: GLITCH REALITY -->
+<div class="screen" id="screen-5">
+  <div class="muted" style="letter-spacing:0.2em; margin-bottom:0.5rem">LEVEL 05</div>
+  <div id="glitch-title" data-text="REALITY.EXE">REALITY.EXE</div>
+  <p style="color:var(--muted); font-size:0.8rem">Something is breaking.</p>
+  <div style="font-size:0.7rem; color:var(--muted); letter-spacing:0.1em">Wait for it...</div>
+  <div id="l5-flash-btn">CATCH ME</div>
+</div>
+
+<!-- SCREEN 6: FINAL -->
+<div class="screen" id="screen-6">
+  <div class="muted" style="letter-spacing:0.2em; margin-bottom:0.5rem">FINAL LEVEL</div>
+  <h2>Escape</h2>
+  <div id="combo-zone">
+    <div id="combo-inner">
+      <p style="font-size:0.75rem; color:var(--muted); letter-spacing:0.1em">Drag. Watch. Click.</p>
+    </div>
+    <svg id="countdown-ring" viewBox="0 0 40 40">
+      <circle cx="20" cy="20" r="16"/>
+      <circle class="progress" cx="20" cy="20" r="16" id="ring-progress"/>
+    </svg>
+    <div id="combo-target">DROP</div>
+    <div id="combo-drag" draggable="true">KEY</div>
+    <div id="final-hidden">EXIT</div>
+  </div>
+  <p style="font-size:0.7rem; color:var(--muted); text-align:center; max-width:300px">One last puzzle. Combine everything you've learned.</p>
+</div>
+
+<!-- FAKE FAIL -->
+<div class="screen" id="screen-fail">
+  <div class="muted" style="letter-spacing:0.2em">SYSTEM MESSAGE</div>
+  <h1 style="color:var(--danger)">You Failed.</h1>
+  <p style="color:var(--muted); text-align:center">The page has locked you in.<br>There is no escape.</p>
+  <div class="muted blink" id="fail-hint" style="margin-top:2rem; opacity:0">or is there...</div>
+</div>
+
+<!-- ESCAPE SCREEN -->
+<div class="screen" id="screen-escape">
+  <div class="muted" style="letter-spacing:0.2em">SYSTEM OVERRIDE COMPLETE</div>
+  <div id="escape-text">ESCAPED.</div>
+  <p style="color:var(--muted); font-size:0.85rem">Most people don't.</p>
+  <div id="stats-row">
+    <div class="stat-box">
+      <div class="stat-label">TIME</div>
+      <div class="stat-value" id="final-time">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">ATTEMPTS</div>
+      <div class="stat-value" id="final-attempts">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">RANK</div>
+      <div class="stat-value" id="final-rank">—</div>
+    </div>
+  </div>
+  <div id="share-row">
+    <button class="btn" onclick="challengeFriends()">Challenge Friends</button>
+    <button class="btn" onclick="tryAgain()">Try Again</button>
+  </div>
+</div>
+
+<script>
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let actx = null;
+
+function ensureAudio() {
+  if (!actx) actx = new AudioContext();
+  if (actx.state === 'suspended') actx.resume();
+}
+
+function playTone(freq, type, dur, vol, env) {
+  ensureAudio();
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  o.connect(g); g.connect(actx.destination);
+  o.type = type || 'sine';
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(0.001, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(vol || 0.15, actx.currentTime + 0.01);
+  if (env === 'fade') g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+  else g.gain.setValueAtTime(vol || 0.15, actx.currentTime + dur * 0.8);
+  g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+  o.start(); o.stop(actx.currentTime + dur);
+}
+
+function playClick() { playTone(800, 'square', 0.06, 0.08, 'fade'); }
+function playPing() {
+  playTone(880, 'sine', 0.4, 0.12, 'fade');
+  setTimeout(() => playTone(1320, 'sine', 0.3, 0.08, 'fade'), 80);
+  setTimeout(() => playTone(1760, 'sine', 0.25, 0.06, 'fade'), 160);
+}
+function playThud() { playTone(80, 'sawtooth', 0.2, 0.15, 'fade'); }
+function playChime() {
+  [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.5, 0.1, 'fade'), i * 120));
+}
+function playGlitch() {
+  ensureAudio();
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      const f = 100 + Math.random() * 2000;
+      playTone(f, ['sawtooth','square'][Math.floor(Math.random()*2)], 0.05, 0.12, 'fade');
+    }, i * 40);
+  }
+}
+function playRise() {
+  for (let i = 0; i < 12; i++) {
+    setTimeout(() => playTone(220 + i * 80, 'sine', 0.4, 0.07, 'fade'), i * 80);
+  }
+}
+
+let ambientPlaying = false;
+let ambientInterval = null;
+function startAmbient() {
+  if (ambientPlaying) return;
+  ambientPlaying = true;
+  function pulse() {
+    if (!ambientPlaying) return;
+    playTone(55, 'sine', 2.5, 0.04, 'fade');
+    setTimeout(() => { if (ambientPlaying) playTone(82, 'sine', 2, 0.025, 'fade'); }, 1200);
+  }
+  pulse();
+  ambientInterval = setInterval(pulse, 4000);
+}
+
+// State
+let currentLevel = 0;
+let startTime = null;
+let timerInterval = null;
+let attempts = 0;
+let l1HintShown = false;
+let l2Clicks = 0;
+let l3Dragged = false;
+let l3Doubled = false;
+let l3Complete = false;
+let l4Found = false;
+let l5Clicked = false;
+let finalDragged = false;
+let finalTimerComplete = false;
+let finalClicked = false;
+let comboStep = 0; // 0=none,1=dragged,2=timer,3=click
+let ctxMenuLevel = -1;
+let l5FlashInterval = null;
+let l5FlashTimeout = null;
+let moveBtnX = 50, moveBtnY = 50;
+let moveBtnAngle = 0;
+let moveAnimFrame = null;
+let ringInterval = null;
+let ringProgress = 0;
+let ringActive = false;
+
+// Cursor
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursor-dot');
+let mx = window.innerWidth/2, my = window.innerHeight/2;
+let cx = mx, cy = my;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursorDot.style.left = mx + 'px';
+  cursorDot.style.top = my + 'px';
+  if (currentLevel >= 4) {
+    document.getElementById('l4-tracker').style.opacity = '1';
+    document.getElementById('l4-tracker').textContent = `CURSOR: ${mx}, ${my}`;
+    updateEyes(mx, my);
+    updateShadowText(mx, my);
+  }
+});
+
+function animateCursor() {
+  cx += (mx - cx) * 0.12;
+  cy += (my - cy) * 0.12;
+  cursor.style.left = cx + 'px';
+  cursor.style.top = cy + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// HUD
+function updateHUD() {
+  document.getElementById('level-indicator').textContent = `LEVEL — 0${currentLevel}`;
+  document.getElementById('progress-bar').style.width = (currentLevel / 7 * 100) + '%';
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  startTime = Date.now();
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    document.getElementById('timer').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function getElapsedTime() {
+  if (!startTime) return '00:00';
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const s = String(elapsed % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function updateAttempts() {
+  document.getElementById('attempts-display').textContent = `ATTEMPTS: ${attempts}`;
+  document.getElementById('attempts-text').textContent = `ATTEMPTS: ${attempts}`;
+  document.getElementById('attempts-display').classList.add('visible');
+}
+
+// Toast
+let toastTimeout = null;
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.color = color || 'var(--text)';
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Particles
+function spawnParticles(x, y) {
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    const angle = (Math.PI * 2 * i) / 8;
+    const dist = 30 + Math.random() * 40;
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    p.style.background = Math.random() > 0.5 ? 'var(--neon)' : 'var(--neon2)';
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 800);
+  }
+}
+
+// Screen transitions
+function showScreen(id, afterFn) {
+  const all = document.querySelectorAll('.screen');
+  all.forEach(s => { s.classList.remove('active'); });
+  const lt = document.getElementById('level-transition');
+  lt.classList.add('show');
+  const ltText = document.getElementById('lt-text');
+  ltText.textContent = id === 'screen-escape' ? 'SYSTEM OVERRIDE...' : id === 'screen-fail' ? 'SYSTEM ERROR' : `ENTERING LEVEL ${currentLevel}`;
+  setTimeout(() => {
+    lt.classList.remove('show');
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
+    if (afterFn) afterFn();
+  }, 700);
+}
+
+function goToLevel(n, transitionMsg) {
+  currentLevel = n;
+  updateHUD();
+  const id = n === 0 ? 'screen-0' :
+              n === 1 ? 'screen-1' :
+              n === 2 ? 'screen-2' :
+              n === 3 ? 'screen-3' :
+              n === 4 ? 'screen-4' :
+              n === 5 ? 'screen-5' :
+              n === 6 ? 'screen-6' : 'screen-escape';
+  showScreen(id, () => {
+    if (n === 1) initLevel1();
+    if (n === 2) initLevel2();
+    if (n === 3) initLevel3();
+    if (n === 4) initLevel4();
+    if (n === 5) initLevel5();
+    if (n === 6) initLevel6();
+  });
+}
+
+// --- LEVEL 0 ---
+document.getElementById('begin-btn').addEventListener('click', () => {
+  playClick();
+  startAmbient();
+  document.getElementById('hud').classList.add('visible');
+  startTimer();
+  goToLevel(1);
+});
+
+// --- LEVEL 1 ---
+function initLevel1() {
+  document.getElementById('l1-hint').style.opacity = '0.01';
+  l1HintShown = false;
+  // Make hint gradually visible
+  setTimeout(() => {
+    document.getElementById('l1-hint').style.transition = 'opacity 3s';
+    document.getElementById('l1-hint').style.opacity = '0.15';
+  }, 3000);
+}
+
+function wrongClick() {
+  attempts++;
+  updateAttempts();
+  playThud();
+  showToast('That won\'t work.', 'var(--muted)');
+  const btn = document.getElementById('l1-next');
+  btn.style.transform = 'translateX(-4px)';
+  setTimeout(() => btn.style.transform = '', 150);
+  // After 2 wrong clicks, hint becomes more visible
+  if (attempts >= 2) {
+    document.getElementById('l1-hint').style.opacity = '0.4';
+  }
+}
+
+document.getElementById('l1-secret').addEventListener('mouseenter', () => {
+  if (currentLevel !== 1) return;
+  document.getElementById('l1-secret').style.color = 'var(--neon2)';
+});
+
+document.getElementById('l1-secret').addEventListener('click', () => {
+  if (currentLevel !== 1) return;
+  playPing();
+  showToast('Interesting…', 'var(--neon)');
+  spawnParticles(mx, my);
+  setTimeout(() => goToLevel(2), 1200);
+});
+
+// --- LEVEL 2 ---
+let l2InvisClicked = false;
+let l2TextClicks = 0;
+
+function initLevel2() {
+  l2TextClicks = 0;
+  l2InvisClicked = false;
+  const mover = document.getElementById('l2-mover');
+  // Move mover around
+  let moverAngle = 0;
+  const moverInterval = setInterval(() => {
+    if (currentLevel !== 2) { clearInterval(moverInterval); return; }
+    moverAngle += 0.02;
+    const x = 20 + 30 * Math.cos(moverAngle) + '%';
+    const y = 40 + 20 * Math.sin(moverAngle * 2) + '%';
+    mover.style.left = x;
+    mover.style.top = y;
+  }, 50);
+}
+
+const l2text = document.getElementById('l2-text');
+const msgs = [
+  'The answer is in the text.',
+  'Look again.',
+  'Closer.',
+  'You\'re almost there.',
+  'CLICK THE INVISIBLE BOX →'
+];
+l2text.addEventListener('click', () => {
+  if (currentLevel !== 2) return;
+  playClick();
+  l2TextClicks++;
+  if (l2TextClicks < msgs.length) {
+    l2text.textContent = msgs[l2TextClicks];
+    l2text.style.color = l2TextClicks > 2 ? 'var(--neon2)' : 'var(--text)';
+  }
+  if (l2TextClicks === 4) {
+    document.getElementById('l2-invisible').style.borderColor = 'rgba(168,255,120,0.3)';
+  }
+});
+
+document.getElementById('l2-invisible').addEventListener('click', () => {
+  if (currentLevel !== 2) return;
+  playPing();
+  spawnParticles(mx, my);
+  showToast('There you are.', 'var(--neon)');
+  setTimeout(() => goToLevel(3), 1200);
+});
+
+document.getElementById('l2-mover').addEventListener('click', () => {
+  if (currentLevel !== 2) return;
+  playPing();
+  spawnParticles(mx, my);
+  showToast('Got it.', 'var(--neon)');
+  setTimeout(() => goToLevel(3), 1200);
+});
+
+// --- LEVEL 3 ---
+let l3DragDone = false;
+let l3DoubleDone = false;
+
+function initLevel3() {
+  l3DragDone = false;
+  l3DoubleDone = false;
+  document.getElementById('l3-reveal').style.opacity = '0';
+}
+
+const l3drag = document.getElementById('l3-draggable');
+const l3reveal = document.getElementById('l3-reveal');
+
+l3drag.addEventListener('dragstart', e => {
+  if (currentLevel !== 3) return;
+  playClick();
+  e.dataTransfer.setData('text/plain', 'key');
+});
+
+document.getElementById('l3-drag-zone').addEventListener('dragover', e => {
+  e.preventDefault();
+});
+
+document.getElementById('l3-drag-zone').addEventListener('drop', e => {
+  e.preventDefault();
+  if (currentLevel !== 3) return;
+  const rect = document.getElementById('l3-drag-zone').getBoundingClientRect();
+  const dropX = e.clientX - rect.left;
+  if (dropX > rect.width * 0.5) {
+    l3reveal.style.opacity = '1';
+    l3DragDone = true;
+    playPing();
+    showToast('Drag complete. Now finish.', 'var(--neon2)');
+    checkLevel3();
+  }
+});
+
+l3reveal.addEventListener('click', () => {
+  if (currentLevel !== 3 || !l3DragDone) return;
+  playPing();
+  spawnParticles(mx, my);
+  setTimeout(() => goToLevel(4), 1000);
+});
+
+function l3DoubleClick() {
+  if (currentLevel !== 3) return;
+  playPing();
+  showToast('Double-click registered!', 'var(--neon)');
+  l3DoubleDone = true;
+  checkLevel3();
+}
+
+function checkLevel3() {
+  if (l3DragDone && l3DoubleDone) {
+    showToast('Rules broken. Move on.', 'var(--neon)');
+    l3reveal.style.background = 'var(--neon2)';
+  }
+}
+
+// Right-click context menu
+document.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const menu = document.getElementById('ctx-menu');
+  menu.style.left = Math.min(e.clientX, window.innerWidth - 180) + 'px';
+  menu.style.top = Math.min(e.clientY, window.innerHeight - 120) + 'px';
+  const secret = document.getElementById('ctx-secret');
+  if (currentLevel === 3) {
+    secret.style.display = 'block';
+    ctxMenuLevel = 3;
+  } else if (currentLevel === 4) {
+    secret.textContent = 'I know what you\'re doing';
+    secret.style.display = 'block';
+    ctxMenuLevel = 4;
+  } else {
+    secret.style.display = 'none';
+  }
+  menu.classList.add('show');
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#ctx-menu')) {
+    document.getElementById('ctx-menu').classList.remove('show');
+  }
+});
+
+document.getElementById('ctx-secret').addEventListener('click', () => {
+  document.getElementById('ctx-menu').classList.remove('show');
+  if (ctxMenuLevel === 3) {
+    playPing();
+    showToast('You found the hidden option.', 'var(--neon)');
+    l3DoubleDone = true;
+    checkLevel3();
+    if (l3DragDone) setTimeout(() => goToLevel(4), 800);
+  }
+});
+
+// --- LEVEL 4 ---
+function initLevel4() {
+  document.getElementById('watching').classList.add('active');
+  document.getElementById('l4-tracker').style.opacity = '1';
+  cursor.classList.add('big');
+  document.body.classList.add('custom-cursor');
+  moveBtnX = 50; moveBtnY = 50;
+  moveBtnAngle = 0;
+  const moveBtn = document.getElementById('l4-move-btn');
+  moveBtn.style.left = '50%';
+  moveBtn.style.top = '50%';
+
+  // Animate button to dodge cursor
+  function moveBtnAway() {
+    if (currentLevel !== 4) return;
+    const btnEl = document.getElementById('l4-move-btn');
+    const bRect = btnEl.getBoundingClientRect();
+    const bcx = bRect.left + bRect.width/2;
+    const bcy = bRect.top + bRect.height/2;
+    const dist = Math.hypot(mx - bcx, my - bcy);
+    if (dist < 120) {
+      // flee
+      const angle = Math.atan2(bcy - my, bcx - mx);
+      moveBtnX += Math.cos(angle) * 3;
+      moveBtnY += Math.sin(angle) * 3;
+      moveBtnX = Math.max(5, Math.min(90, moveBtnX));
+      moveBtnY = Math.max(10, Math.min(85, moveBtnY));
+      btnEl.style.left = moveBtnX + 'vw';
+      btnEl.style.top = moveBtnY + 'vh';
+    }
+    moveAnimFrame = requestAnimationFrame(moveBtnAway);
+  }
+  moveBtnAway();
+
+  document.getElementById('l4-move-btn').addEventListener('click', () => {
+    if (currentLevel !== 4) return;
+    cancelAnimationFrame(moveAnimFrame);
+    playChime();
+    spawnParticles(mx, my);
+    showToast('Caught it.', 'var(--neon)');
+    cursor.classList.remove('big');
+    document.getElementById('watching').classList.remove('active');
+    document.getElementById('l4-tracker').style.opacity = '0';
+    setTimeout(() => goToLevel(5), 1200);
+  });
+}
+
+function updateEyes(x, y) {
+  ['p1','p2','p3','p4'].forEach((id, i) => {
+    const eye = document.getElementById(['eye1','eye2','eye3','eye4'][i]);
+    const pupil = document.getElementById(id);
+    const r = eye.getBoundingClientRect();
+    const ex = r.left + r.width/2;
+    const ey = r.top + r.height/2;
+    const angle = Math.atan2(y - ey, x - ex);
+    const dist = Math.min(6, Math.hypot(y - ey, x - ex) * 0.05);
+    pupil.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+  });
+}
+
+function updateShadowText(x, y) {
+  const el = document.getElementById('l4-shadow-text');
+  if (!el) return;
+  const dx = (x / window.innerWidth - 0.5) * 20;
+  const dy = (y / window.innerHeight - 0.5) * 20;
+  el.style.textShadow = `${dx}px ${dy}px 30px rgba(168,255,120,0.3), ${-dx}px ${-dy}px 30px rgba(120,255,232,0.15)`;
+}
+
+// --- LEVEL 5 ---
+function initLevel5() {
+  let glitchCount = 0;
+  const glitchTitle = document.getElementById('glitch-title');
+  const flashBtn = document.getElementById('l5-flash-btn');
+  const flicker = document.getElementById('l5-flicker');
+
+  function triggerGlitch() {
+    if (currentLevel !== 5) return;
+    playGlitch();
+    glitchTitle.classList.add('glitching');
+    setTimeout(() => glitchTitle.classList.remove('glitching'), 300);
+    // Flicker screen
+    flicker.style.opacity = '0.3';
+    setTimeout(() => flicker.style.opacity = '0', 80);
+    setTimeout(() => { flicker.style.opacity = '0.15'; }, 120);
+    setTimeout(() => { flicker.style.opacity = '0'; }, 200);
+    glitchCount++;
+    // Every 3rd glitch, flash the button
+    if (glitchCount % 3 === 0) {
+      flashBtn.style.left = (10 + Math.random() * 70) + 'vw';
+      flashBtn.style.top = (20 + Math.random() * 60) + 'vh';
+      flashBtn.classList.add('show');
+      clearTimeout(l5FlashTimeout);
+      l5FlashTimeout = setTimeout(() => flashBtn.classList.remove('show'), 800 + Math.random() * 600);
+    }
+  }
+
+  l5FlashInterval = setInterval(triggerGlitch, 1200 + Math.random() * 800);
+
+  flashBtn.addEventListener('click', () => {
+    if (currentLevel !== 5) return;
+    clearInterval(l5FlashInterval);
+    flashBtn.classList.remove('show');
+    playRise();
+    spawnParticles(mx, my);
+    showToast('Reality captured.', 'var(--neon)');
+    setTimeout(() => goToLevel(6), 1500);
+  });
+}
+
+// --- LEVEL 6: FINAL ---
+function initLevel6() {
+  comboStep = 0;
+  finalDragged = false;
+  finalTimerComplete = false;
+  finalClicked = false;
+  ringProgress = 0;
+  ringActive = false;
+
+  const comboTarget = document.getElementById('combo-target');
+  const comboDrag = document.getElementById('combo-drag');
+  const finalHidden = document.getElementById('final-hidden');
+  const ringEl = document.getElementById('ring-progress');
+
+  comboDrag.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', 'final');
+    playClick();
+  });
+
+  comboTarget.addEventListener('dragover', e => e.preventDefault());
+
+  comboTarget.addEventListener('drop', e => {
+    e.preventDefault();
+    if (finalDragged) return;
+    finalDragged = true;
+    comboTarget.classList.add('locked');
+    comboTarget.textContent = 'LOCKED';
+    comboDrag.style.opacity = '0.3';
+    playPing();
+    showToast('Step 1: Complete', 'var(--neon)');
+
+    // Start ring timer
+    ringActive = true;
+    ringProgress = 100;
+    const circumference = 2 * Math.PI * 16;
+    ringEl.style.strokeDasharray = circumference;
+    ringEl.style.strokeDashoffset = 0;
+
+    ringInterval = setInterval(() => {
+      if (!ringActive) { clearInterval(ringInterval); return; }
+      ringProgress -= 1;
+      const offset = circumference * (1 - ringProgress / 100);
+      ringEl.style.strokeDashoffset = offset;
+      if (ringProgress <= 0) {
+        clearInterval(ringInterval);
+        if (!finalTimerComplete) {
+          finalTimerComplete = true;
+          showToast('Step 2: Timer complete!', 'var(--neon2)');
+          finalHidden.classList.add('revealed');
+        }
+      }
+    }, 80);
+  });
+
+  finalHidden.addEventListener('dblclick', e => {
+    e.preventDefault();
+    if (!finalTimerComplete) return;
+    playChime();
+    spawnParticles(mx, my);
+    finalClicked = true;
+    checkFinalCombo();
+  });
+
+  finalHidden.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    if (!finalTimerComplete) return;
+    playChime();
+    spawnParticles(mx, my);
+    finalClicked = true;
+    checkFinalCombo();
+  });
+}
+
+function checkFinalCombo() {
+  if (finalDragged && finalTimerComplete && finalClicked) {
+    showToast('All steps complete. Initiating escape…', 'var(--neon)');
+    playRise();
+    setTimeout(() => showFakeFail(), 1500);
+  }
+}
+
+// Fake fail screen
+let fakeFailed = false;
+function showFakeFail() {
+  fakeFailed = true;
+  showScreen('screen-fail', () => {
+    document.getElementById('fail-hint').style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('fail-hint').style.opacity = '1';
+    }, 2000);
+  });
+  // After 4s, reveal the hint is clickable
+  setTimeout(() => {
+    const hint = document.getElementById('fail-hint');
+    hint.style.cursor = 'crosshair';
+    hint.style.color = 'var(--neon)';
+    hint.addEventListener('click', () => {
+      if (!fakeFailed) return;
+      fakeFailed = false;
+      playRise();
+      spawnParticles(mx, my);
+      doEscape();
+    });
+  }, 4000);
+}
+
+function doEscape() {
+  clearInterval(timerInterval);
+  clearInterval(ambientInterval);
+  ambientPlaying = false;
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const s = String(elapsed % 60).padStart(2, '0');
+  document.getElementById('final-time').textContent = `${m}:${s}`;
+  document.getElementById('final-attempts').textContent = attempts;
+  const rank = elapsed < 120 ? 'PHANTOM' : elapsed < 300 ? 'GHOST' : elapsed < 600 ? 'SEEKER' : 'WANDERER';
+  document.getElementById('final-rank').textContent = rank;
+  document.body.classList.remove('custom-cursor');
+  cursor.classList.remove('big');
+  document.getElementById('watching').classList.remove('active');
+  showScreen('screen-escape', () => {
+    playRise();
+    setTimeout(() => playChime(), 800);
+  });
+  document.getElementById('progress-bar').style.width = '100%';
+}
+
+function challengeFriends() {
+  playClick();
+  const elapsed = document.getElementById('final-time').textContent;
+  const text = `I escaped the page in ${elapsed}. Can you? 🔐 Try: ${window.location.href}`;
+  if (navigator.share) {
+    navigator.share({ title: 'Escape the Page', text });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+    showToast('Copied to clipboard!', 'var(--neon)');
+  } else {
+    showToast('Share: "I escaped the page. Can you?"', 'var(--neon)');
+  }
+}
+
+function tryAgain() {
+  playClick();
+  location.reload();
+}
+
+// Global click sound
+document.addEventListener('click', e => {
+  if (actx) playClick();
+}, { passive: true });
+
+// Global wrong click tracker for non-interactive areas
+document.addEventListener('click', e => {
+  const interactable = e.target.closest('button, .btn, #l1-secret, #l2-text, #l2-invisible, #l2-mover, #l3-drag-zone, #l3-double, #l3-reveal, #l4-move-btn, #l5-flash-btn, #combo-target, #final-hidden, #combo-drag, #fail-hint, #ctx-secret, .ctx-item, #begin-btn');
+  if (!interactable && currentLevel > 0 && currentLevel < 7) {
+    // Light thud for clicking nowhere
+  }
+}, { passive: true });
+
+// Key secrets
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && currentLevel > 0) {
+    attempts++;
+    updateAttempts();
+    showToast('Not that easy.', 'var(--muted)');
+    playThud();
+  }
+  if (e.key === 'Enter' && currentLevel === 1) {
+    wrongClick();
+  }
+});
+
+// Initial update
+updateHUD();
+</script>
+</body>
+</html>
