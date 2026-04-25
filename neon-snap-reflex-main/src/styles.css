@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Press+Start+2P&display=swap');
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-neon-red: var(--neon-red);
+  --color-neon-blue: var(--neon-blue);
+  --color-neon-green: var(--neon-green);
+  --color-neon-yellow: var(--neon-yellow);
+  --color-neon-purple: var(--neon-purple);
+  --color-neon-pink: var(--neon-pink);
+  --color-neon-cyan: var(--neon-cyan);
+  --font-display: "Orbitron", system-ui, sans-serif;
+  --font-arcade: "Press Start 2P", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.08 0.02 280);
+  --foreground: oklch(0.98 0.01 280);
+  --card: oklch(0.12 0.03 280);
+  --card-foreground: oklch(0.98 0.01 280);
+  --popover: oklch(0.12 0.03 280);
+  --popover-foreground: oklch(0.98 0.01 280);
+  --primary: oklch(0.75 0.25 320);
+  --primary-foreground: oklch(0.08 0.02 280);
+  --secondary: oklch(0.2 0.04 280);
+  --secondary-foreground: oklch(0.98 0.01 280);
+  --muted: oklch(0.18 0.03 280);
+  --muted-foreground: oklch(0.7 0.05 280);
+  --accent: oklch(0.7 0.25 200);
+  --accent-foreground: oklch(0.08 0.02 280);
+  --destructive: oklch(0.65 0.28 25);
+  --destructive-foreground: oklch(0.98 0.01 280);
+  --border: oklch(0.25 0.05 280);
+  --input: oklch(0.2 0.04 280);
+  --ring: oklch(0.75 0.25 320);
+
+  --neon-red: oklch(0.68 0.27 25);
+  --neon-blue: oklch(0.7 0.22 250);
+  --neon-green: oklch(0.85 0.25 145);
+  --neon-yellow: oklch(0.92 0.2 100);
+  --neon-purple: oklch(0.65 0.28 305);
+  --neon-pink: oklch(0.75 0.27 350);
+  --neon-cyan: oklch(0.85 0.18 200);
+}
+
+.dark {
+  --background: oklch(0.08 0.02 280);
+  --foreground: oklch(0.98 0.01 280);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-display);
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+@layer utilities {
+  .font-arcade { font-family: var(--font-arcade); }
+  .font-display { font-family: var(--font-display); }
+
+  .neon-text {
+    text-shadow:
+      0 0 8px currentColor,
+      0 0 20px currentColor,
+      0 0 40px currentColor;
+  }
+
+  .neon-text-soft {
+    text-shadow:
+      0 0 6px currentColor,
+      0 0 16px currentColor;
+  }
+
+  .neon-glow {
+    box-shadow:
+      0 0 12px currentColor,
+      0 0 32px currentColor,
+      inset 0 0 12px color-mix(in oklab, currentColor 40%, transparent);
+  }
+
+  .neon-border {
+    box-shadow:
+      0 0 6px currentColor,
+      0 0 18px currentColor,
+      inset 0 0 6px color-mix(in oklab, currentColor 30%, transparent);
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--neon-purple) 10%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--neon-cyan) 10%, transparent) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+  }
+
+  .scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 2px,
+      rgba(255,255,255,0.025) 3px,
+      transparent 4px
+    );
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 8px currentColor); }
+  50% { filter: brightness(1.4) drop-shadow(0 0 24px currentColor); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-12px); }
+  40% { transform: translateX(12px); }
+  60% { transform: translateX(-8px); }
+  80% { transform: translateX(8px); }
+}
+
+@keyframes flash-correct {
+  0% { background-color: transparent; }
+  30% { background-color: color-mix(in oklab, var(--neon-green) 35%, transparent); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flash-wrong {
+  0% { background-color: transparent; }
+  30% { background-color: color-mix(in oklab, var(--neon-red) 45%, transparent); }
+  100% { background-color: transparent; }
+}
+
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.6; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-60px) scale(1.4); opacity: 0; }
+}
+
+@keyframes scan {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+.animate-pulse-glow { animation: pulse-glow 1.2s ease-in-out infinite; }
+.animate-shake { animation: shake 0.4s ease-in-out; }
+.animate-flash-correct { animation: flash-correct 0.4s ease-out; }
+.animate-flash-wrong { animation: flash-wrong 0.4s ease-out; }
+.animate-ripple { animation: ripple 0.6s ease-out forwards; }
+.animate-float-up { animation: float-up 0.9s ease-out forwards; }
+.animate-scan-bg { animation: scan 8s linear infinite; }
