@@ -1,0 +1,155 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-csk-yellow: var(--csk-yellow);
+  --color-csk-yellow-bright: var(--csk-yellow-bright);
+  --color-csk-navy: var(--csk-navy);
+  --color-csk-navy-deep: var(--csk-navy-deep);
+  --color-csk-black: var(--csk-black);
+
+  --font-display: "Oswald", "Bebas Neue", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  --shadow-glow-yellow: 0 0 32px -4px var(--csk-yellow);
+  --shadow-card-elevated: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+
+  --gradient-csk: linear-gradient(135deg, var(--csk-yellow) 0%, var(--csk-yellow-bright) 100%);
+  --gradient-stadium: linear-gradient(180deg, var(--csk-navy-deep) 0%, var(--csk-navy) 50%, var(--csk-black) 100%);
+  --gradient-card: linear-gradient(160deg, oklch(0.22 0.04 260) 0%, oklch(0.14 0.03 260) 100%);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* CSK palette */
+  --csk-yellow: oklch(0.86 0.18 95);          /* #FDB913 ish */
+  --csk-yellow-bright: oklch(0.92 0.20 100);
+  --csk-navy: oklch(0.18 0.05 260);
+  --csk-navy-deep: oklch(0.10 0.03 260);
+  --csk-black: oklch(0.06 0.01 260);
+
+  --background: oklch(0.10 0.03 260);
+  --foreground: oklch(0.98 0.01 95);
+
+  --card: oklch(0.16 0.04 260);
+  --card-foreground: oklch(0.98 0.01 95);
+  --popover: oklch(0.14 0.04 260);
+  --popover-foreground: oklch(0.98 0.01 95);
+
+  --primary: var(--csk-yellow);
+  --primary-foreground: var(--csk-navy-deep);
+  --secondary: oklch(0.22 0.04 260);
+  --secondary-foreground: oklch(0.98 0.01 95);
+
+  --muted: oklch(0.20 0.03 260);
+  --muted-foreground: oklch(0.72 0.03 90);
+  --accent: var(--csk-yellow);
+  --accent-foreground: var(--csk-navy-deep);
+
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 95);
+
+  --border: oklch(0.28 0.03 260);
+  --input: oklch(0.22 0.03 260);
+  --ring: var(--csk-yellow);
+}
+
+.dark {
+  --background: oklch(0.10 0.03 260);
+  --foreground: oklch(0.98 0.01 95);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background: var(--gradient-stadium);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    min-height: 100vh;
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0.02em; }
+}
+
+/* Animations */
+@keyframes float-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.86 0.18 95 / 0.6); }
+  50% { box-shadow: 0 0 24px 6px oklch(0.86 0.18 95 / 0.5); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes spin-ball {
+  0% { transform: rotate(0deg) translateX(0); }
+  100% { transform: rotate(360deg) translateX(0); }
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(-20vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@keyframes flash {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: oklch(0.86 0.18 95 / 0.3); }
+}
+
+.animate-float-up { animation: float-up 0.5s ease-out both; }
+.animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+.animate-spin-ball { animation: spin-ball 1.2s linear infinite; }
+.animate-flash { animation: flash 0.6s ease-out; }
+
+.text-shimmer {
+  background: linear-gradient(90deg, var(--csk-yellow) 0%, oklch(1 0 0) 50%, var(--csk-yellow) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+.csk-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card-elevated);
+}
+
+.dragging { opacity: 0.4; transform: scale(1.05); }
+.drop-active {
+  border-color: var(--csk-yellow) !important;
+  background: oklch(0.86 0.18 95 / 0.1) !important;
+  box-shadow: var(--shadow-glow-yellow);
+}
