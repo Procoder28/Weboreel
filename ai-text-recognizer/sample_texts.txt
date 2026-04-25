@@ -1,0 +1,26 @@
+SAMPLE TEST TEXTS FOR TEXTTRUTH AI
+====================================
+
+--- LIKELY AI GENERATED ---
+
+Sample 1:
+Artificial intelligence represents a transformative paradigm shift in modern technological development. Furthermore, it is important to acknowledge that machine learning algorithms leverage complex neural architectures to facilitate comprehensive data analysis. Additionally, these systems demonstrate robust performance across multifaceted domains, providing holistic solutions to contemporary challenges. It is worth noting that the implications of such advancements are far-reaching and multidimensional.
+
+Sample 2:
+In today's rapidly evolving digital landscape, cybersecurity has become a crucial component of organizational strategy. Consequently, businesses must navigate the complex intersection of technological innovation and risk management. To summarize, implementing robust security protocols is not merely a technical necessity but a fundamental business imperative that requires holistic consideration of various stakeholders.
+
+--- LIKELY HUMAN WRITTEN ---
+
+Sample 3:
+I've been trying to learn guitar for like 3 months now and honestly it's way harder than I thought lol. My fingers hurt constantly and I still can't nail the F chord... but hey, I did manage to play the full intro of Wonderwall yesterday so that's something I guess! Anyone else struggle this much at the start? My roommate keeps laughing at me but whatever, I'll show him eventually.
+
+Sample 4:
+Just got back from the worst camping trip of my life. It rained the entire weekend, we forgot the tent poles (yes, ALL of them), and someone — not naming names — thought it'd be funny to bring only instant noodles and energy drinks for 3 days. I'm sunburned somehow despite zero sun. 10/10 would not recommend, but also weirdly already planning the next one.
+
+--- AMBIGUOUS ---
+
+Sample 5:
+The study found interesting correlations between sleep patterns and cognitive performance. Participants who slept less than six hours showed measurable declines in memory tests. However, the sample size was relatively small at just 42 individuals, so we should be careful about drawing broad conclusions from this data. More research with diverse populations would be needed to confirm these findings.
+
+Sample 6:
+Python is a great language for beginners because of its readable syntax. You don't need to worry about semicolons or complicated type declarations. However, it can be slower than compiled languages like C++ for performance-critical applications. Most developers find it's a good starting point, and you can always switch to other languages once you understand programming fundamentals.
