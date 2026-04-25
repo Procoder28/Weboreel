@@ -1,0 +1,224 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-glow: var(--glow);
+  --color-glitch-a: var(--glitch-a);
+  --color-glitch-b: var(--glitch-b);
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root {
+  --radius: 0.5rem;
+  --background: oklch(0.08 0.01 270);
+  --foreground: oklch(0.97 0.005 270);
+  --card: oklch(0.12 0.015 270);
+  --card-foreground: oklch(0.97 0.005 270);
+  --popover: oklch(0.12 0.015 270);
+  --popover-foreground: oklch(0.97 0.005 270);
+  --primary: oklch(0.85 0.18 155);
+  --primary-foreground: oklch(0.08 0.01 270);
+  --secondary: oklch(0.18 0.02 270);
+  --secondary-foreground: oklch(0.97 0.005 270);
+  --muted: oklch(0.18 0.02 270);
+  --muted-foreground: oklch(0.65 0.02 270);
+  --accent: oklch(0.7 0.22 340);
+  --accent-foreground: oklch(0.08 0.01 270);
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.97 0.005 270);
+  --border: oklch(0.22 0.02 270);
+  --input: oklch(0.22 0.02 270);
+  --ring: oklch(0.85 0.18 155);
+  --glow: oklch(0.85 0.18 155);
+  --glitch-a: oklch(0.7 0.28 20);
+  --glitch-b: oklch(0.75 0.22 220);
+
+  --gradient-calm: radial-gradient(circle at 50% 50%, oklch(0.85 0.18 155 / 0.25), transparent 70%);
+  --gradient-chaos: linear-gradient(135deg, oklch(0.7 0.28 20 / 0.15), oklch(0.75 0.22 220 / 0.15));
+  --shadow-glow: 0 0 60px oklch(0.85 0.18 155 / 0.5), 0 0 120px oklch(0.85 0.18 155 / 0.25);
+  --shadow-soft: 0 10px 40px oklch(0 0 0 / 0.4);
+
+  --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-display);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+}
+
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .font-mono { font-family: var(--font-mono); }
+
+  .text-glow {
+    text-shadow: 0 0 20px oklch(0.85 0.18 155 / 0.6), 0 0 40px oklch(0.85 0.18 155 / 0.3);
+  }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .bg-calm { background-image: var(--gradient-calm); }
+  .bg-chaos { background-image: var(--gradient-chaos); }
+
+  .glitch {
+    position: relative;
+    display: inline-block;
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .glitch::before {
+    color: var(--glitch-a);
+    transform: translate(-2px, 0);
+    mix-blend-mode: screen;
+    animation: glitch-a 2.4s infinite steps(1);
+  }
+  .glitch::after {
+    color: var(--glitch-b);
+    transform: translate(2px, 0);
+    mix-blend-mode: screen;
+    animation: glitch-b 2.8s infinite steps(1);
+  }
+
+  @keyframes glitch-a {
+    0%, 92%, 100% { transform: translate(0,0); clip-path: inset(0 0 0 0); }
+    93% { transform: translate(-3px, 1px); clip-path: inset(20% 0 60% 0); }
+    95% { transform: translate(2px, -1px); clip-path: inset(60% 0 10% 0); }
+    97% { transform: translate(-2px, 2px); clip-path: inset(40% 0 30% 0); }
+  }
+  @keyframes glitch-b {
+    0%, 90%, 100% { transform: translate(0,0); clip-path: inset(0 0 0 0); }
+    91% { transform: translate(3px, -1px); clip-path: inset(70% 0 10% 0); }
+    94% { transform: translate(-2px, 1px); clip-path: inset(10% 0 70% 0); }
+    98% { transform: translate(1px, -2px); clip-path: inset(30% 0 40% 0); }
+  }
+
+  .scanlines::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      oklch(1 0 0 / 0.02) 0px,
+      oklch(1 0 0 / 0.02) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  .pulse-glow {
+    animation: pulse-glow 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 oklch(0.85 0.18 155 / 0.5); }
+    50% { box-shadow: 0 0 60px 20px oklch(0.85 0.18 155 / 0); }
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-up { animation: fade-up 0.6s var(--transition-smooth) both; }
+
+  @keyframes shake {
+    0%, 100% { transform: translate(0,0); }
+    20% { transform: translate(-4px, 2px); }
+    40% { transform: translate(4px, -2px); }
+    60% { transform: translate(-3px, -1px); }
+    80% { transform: translate(2px, 3px); }
+  }
+  .animate-shake { animation: shake 0.4s ease-in-out; }
+
+  /* Urgency pulse for low-time UI */
+  @keyframes urgency-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.04); }
+  }
+  .animate-urgency { animation: urgency-pulse 0.6s ease-in-out infinite; }
+
+  /* Reality-break: noise, color bands, flip, calm fade */
+  @keyframes rb-noise-shift {
+    0% { background-position: 0 0, 0 0; transform: translate(0,0); }
+    20% { background-position: 30% 70%, 10% 40%; transform: translate(-6px, 3px); }
+    40% { background-position: 70% 20%, 40% 80%; transform: translate(4px, -5px); }
+    60% { background-position: 10% 90%, 80% 10%; transform: translate(-3px, 6px); }
+    80% { background-position: 90% 50%, 20% 60%; transform: translate(5px, -2px); }
+    100% { background-position: 50% 50%, 50% 50%; transform: translate(0,0); }
+  }
+  .rb-noise {
+    background-image:
+      repeating-linear-gradient(0deg, oklch(1 0 0 / 0.1) 0 1px, transparent 1px 3px),
+      radial-gradient(circle at 30% 40%, oklch(0.7 0.28 20 / 0.45), transparent 60%),
+      radial-gradient(circle at 70% 60%, oklch(0.75 0.22 220 / 0.45), transparent 60%);
+    background-size: 100% 4px, 200% 200%, 200% 200%;
+    mix-blend-mode: screen;
+    animation: rb-noise-shift 0.9s steps(8) both;
+  }
+  @keyframes rb-bands {
+    0% { clip-path: inset(0 0 0 0); transform: translateX(0); }
+    25% { clip-path: inset(20% 0 60% 0); transform: translateX(-12px); }
+    50% { clip-path: inset(60% 0 10% 0); transform: translateX(14px); }
+    75% { clip-path: inset(35% 0 35% 0); transform: translateX(-8px); }
+    100% { clip-path: inset(0 0 0 0); transform: translateX(0); }
+  }
+  .rb-bands {
+    background: linear-gradient(180deg, transparent, oklch(0.85 0.18 155 / 0.5), transparent);
+    mix-blend-mode: screen;
+    animation: rb-bands 0.9s steps(6) both;
+  }
+  @keyframes rb-flip {
+    0% { transform: scale(1) rotate(0deg); filter: invert(0); }
+    20% { transform: scale(1.05) rotate(0.5deg); filter: invert(1) hue-rotate(40deg); }
+    50% { transform: scale(1) rotate(180deg); filter: invert(1) hue-rotate(180deg); }
+    80% { transform: scale(1.02) rotate(360deg); filter: invert(0.3) hue-rotate(0deg); }
+    100% { transform: scale(1) rotate(360deg); filter: invert(0); }
+  }
+  .rb-flip { animation: rb-flip 1s cubic-bezier(0.7, 0, 0.3, 1) both; transform-origin: center; }
+  @keyframes rb-calm-in {
+    0% { opacity: 0; transform: scale(0.96); filter: blur(8px); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
+  }
+  .rb-calm { animation: rb-calm-in 1s ease-out both; }
+}
