@@ -1,5 +1,8 @@
 flask==3.0.3
 flask-cors==4.0.1
-transformers==4.41.2
-torch==2.3.0
+# Optional ML stack: install on Python 3.12 or older.
+# On Python 3.13, app still runs in heuristic fallback mode.
+transformers==4.46.3; python_version < "3.13"
+torch==2.4.1; python_version < "3.13"
 requests==2.32.3
+gunicorn==22.0.0

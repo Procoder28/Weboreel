@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+import os
 import re
 
 app = Flask(__name__)
@@ -188,5 +189,13 @@ def health():
     })
 
 
+@app.route('/', methods=['GET'])
+def home():
+    return send_from_directory('.', 'index.html')
+
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    host = os.getenv('HOST', '0.0.0.0')
+    port = int(os.getenv('PORT', '5000'))
+    debug = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
+    app.run(host=host, port=port, debug=debug)
