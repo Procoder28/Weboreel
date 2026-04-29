@@ -1,0 +1,266 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.625rem;
+
+  /* Default = morning palette, replaced by JS via inline style */
+  --bg-from: oklch(0.95 0.04 230);
+  --bg-via: oklch(0.92 0.06 90);
+  --bg-to: oklch(0.98 0.02 90);
+  --foreground: oklch(0.25 0.05 250);
+  --muted-foreground: oklch(0.45 0.04 250);
+  --accent-glow: oklch(0.85 0.15 80);
+  --particle: oklch(1 0 0 / 0.7);
+
+  --background: oklch(1 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0 0);
+  --primary: oklch(0.25 0.05 250);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.96 0.01 250);
+  --secondary-foreground: oklch(0.25 0.05 250);
+  --muted: oklch(0.96 0.01 250);
+  --accent: oklch(0.96 0.01 250);
+  --accent-foreground: oklch(0.25 0.05 250);
+  --destructive: oklch(0.6 0.24 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.92 0.01 250);
+  --input: oklch(0.92 0.01 250);
+  --ring: oklch(0.7 0.04 256);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    color: var(--foreground);
+    font-family: var(--font-body);
+    overflow: hidden;
+    background: #000;
+  }
+}
+
+/* Animated gradient background that smoothly tweens via CSS variables */
+.world-bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 20%, var(--bg-from) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, var(--accent-glow) 0%, transparent 55%),
+    linear-gradient(160deg, var(--bg-from) 0%, var(--bg-via) 50%, var(--bg-to) 100%);
+  transition:
+    background 2400ms ease,
+    --bg-from 2400ms ease,
+    --bg-via 2400ms ease,
+    --bg-to 2400ms ease,
+    --accent-glow 2400ms ease;
+  z-index: 0;
+}
+
+@property --bg-from { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --bg-via  { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --bg-to   { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --accent-glow { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+
+/* Soft glow orb (sun / moon) */
+.celestial {
+  position: fixed;
+  top: 18%;
+  right: 15%;
+  width: 220px;
+  height: 220px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 50% 50%, var(--accent-glow) 0%, transparent 70%);
+  filter: blur(8px);
+  opacity: 0.85;
+  z-index: 1;
+  pointer-events: none;
+  animation: float 14s ease-in-out infinite;
+  transition: background 2400ms ease, opacity 2400ms ease;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-18px) scale(1.04); }
+}
+
+/* Light rays (morning) */
+.rays {
+  position: fixed;
+  inset: 0;
+  background:
+    conic-gradient(from 200deg at 80% 20%,
+      transparent 0deg,
+      color-mix(in oklab, var(--accent-glow) 18%, transparent) 12deg,
+      transparent 24deg,
+      color-mix(in oklab, var(--accent-glow) 10%, transparent) 36deg,
+      transparent 48deg);
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 2400ms ease;
+}
+
+/* Subtle vignette */
+.vignette {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.35) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Particles canvas */
+.particles {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Content */
+.content {
+  position: relative;
+  z-index: 5;
+  height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  color: var(--foreground);
+  transition: color 2400ms ease;
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 2rem;
+  animation: fadeUp 1.2s ease both;
+}
+
+.headline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+  animation: fadeUp 1.4s 0.15s ease both;
+}
+
+.headline em {
+  font-style: italic;
+  background: linear-gradient(120deg, var(--foreground), var(--accent-glow));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.greeting {
+  margin-top: 1.5rem;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+  animation: fadeUp 1.6s 0.3s ease both;
+}
+
+.clock {
+  margin-top: 2.5rem;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(3rem, 9vw, 6rem);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  animation: fadeUp 1.6s 0.4s ease both;
+}
+
+.clock .seconds {
+  font-size: 0.45em;
+  opacity: 0.55;
+  margin-left: 0.25em;
+}
+
+.tagline {
+  margin-top: 3rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  animation: fadeUp 1.8s 0.55s ease both;
+}
+
+.audio-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 6;
+  background: color-mix(in oklab, var(--foreground) 10%, transparent);
+  color: var(--foreground);
+  border: 1px solid color-mix(in oklab, var(--foreground) 20%, transparent);
+  backdrop-filter: blur(10px);
+  border-radius: 9999px;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.audio-toggle:hover { background: color-mix(in oklab, var(--foreground) 18%, transparent); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .celestial { width: 160px; height: 160px; top: 10%; right: 8%; }
+}
