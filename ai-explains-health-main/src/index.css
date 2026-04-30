@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* MediExplain — calm clinical dark theme */
+    --background: 222 30% 7%;
+    --foreground: 210 30% 96%;
+
+    --card: 222 28% 10%;
+    --card-foreground: 210 30% 96%;
+
+    --popover: 222 28% 10%;
+    --popover-foreground: 210 30% 96%;
+
+    --primary: 175 75% 48%;
+    --primary-foreground: 222 40% 8%;
+    --primary-glow: 175 90% 60%;
+
+    --secondary: 222 22% 16%;
+    --secondary-foreground: 210 30% 96%;
+
+    --muted: 222 20% 14%;
+    --muted-foreground: 215 18% 65%;
+
+    --accent: 200 90% 55%;
+    --accent-foreground: 222 40% 8%;
+
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 152 65% 48%;
+    --warning: 38 95% 58%;
+    --danger: 0 80% 62%;
+
+    --border: 222 20% 18%;
+    --input: 222 20% 18%;
+    --ring: 175 75% 48%;
+
+    --radius: 0.875rem;
+
+    --gradient-hero: radial-gradient(1200px 600px at 20% 0%, hsl(175 75% 48% / 0.18), transparent 60%),
+                     radial-gradient(900px 500px at 90% 10%, hsl(200 90% 55% / 0.14), transparent 60%),
+                     linear-gradient(180deg, hsl(222 30% 7%), hsl(222 30% 5%));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-card: linear-gradient(160deg, hsl(222 28% 11%), hsl(222 28% 9%));
+
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.25), 0 20px 60px -20px hsl(var(--primary) / 0.45);
+    --shadow-card: 0 1px 0 hsl(210 30% 96% / 0.04) inset, 0 30px 60px -30px hsl(222 80% 2% / 0.7);
+
+    --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html, body, #root { @apply min-h-screen; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image: var(--gradient-hero);
+    background-attachment: fixed;
+    font-feature-settings: "ss01", "cv11";
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+    @apply border border-border/60 rounded-2xl backdrop-blur-sm;
+  }
+  .status-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+}

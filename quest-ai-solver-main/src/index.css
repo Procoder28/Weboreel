@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* DoubtBuddy AI — Midnight Indigo theme */
+    --background: 240 47% 6%;
+    --foreground: 230 40% 96%;
+
+    --card: 240 38% 10%;
+    --card-foreground: 230 40% 96%;
+
+    --popover: 240 38% 10%;
+    --popover-foreground: 230 40% 96%;
+
+    --primary: 244 75% 59%;
+    --primary-foreground: 230 40% 98%;
+    --primary-glow: 250 90% 70%;
+
+    --secondary: 240 35% 14%;
+    --secondary-foreground: 230 40% 96%;
+
+    --muted: 240 30% 16%;
+    --muted-foreground: 230 18% 70%;
+
+    --accent: 250 80% 65%;
+    --accent-foreground: 230 40% 98%;
+
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 230 40% 98%;
+
+    --border: 240 30% 18%;
+    --input: 240 30% 16%;
+    --ring: 244 75% 59%;
+
+    --radius: 1rem;
+
+    --gradient-hero: linear-gradient(135deg, hsl(244 75% 59%) 0%, hsl(265 80% 65%) 50%, hsl(220 90% 60%) 100%);
+    --gradient-card: linear-gradient(160deg, hsl(240 38% 12% / 0.9), hsl(244 40% 14% / 0.6));
+    --gradient-glow: radial-gradient(circle at 50% 0%, hsl(244 75% 59% / 0.35), transparent 60%);
+    --shadow-glow: 0 20px 60px -20px hsl(244 75% 59% / 0.5);
+    --shadow-card: 0 10px 40px -10px hsl(240 80% 4% / 0.6);
+    --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 240 38% 10%;
+    --sidebar-foreground: 230 40% 96%;
+    --sidebar-primary: 244 75% 59%;
+    --sidebar-primary-foreground: 230 40% 98%;
+    --sidebar-accent: 240 35% 14%;
+    --sidebar-accent-foreground: 230 40% 96%;
+    --sidebar-border: 240 30% 18%;
+    --sidebar-ring: 244 75% 59%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html, body {
+    @apply bg-background text-foreground;
+    font-family: 'Figtree', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5 {
+    font-family: 'Outfit', system-ui, sans-serif;
+    @apply tracking-tight;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-hero { background: var(--gradient-hero); }
+  .bg-gradient-card { background: var(--gradient-card); }
+  .bg-gradient-glow { background: var(--gradient-glow); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .text-gradient {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glass {
+    background: hsl(240 38% 12% / 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid hsl(240 30% 22% / 0.6);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
+.animate-fade-up { animation: fade-up 0.5s var(--transition-smooth) both; }
