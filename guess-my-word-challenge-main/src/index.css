@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 0 0% 10%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 0 0% 95%;
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 0 0% 30%;
+
+    --radius: 0.375rem;
+
+    /* Wordle tile/key colors */
+    --tile-empty: 0 0% 100%;
+    --tile-empty-border: 0 0% 83%;
+    --tile-filled-border: 0 0% 50%;
+
+    --correct: 115 29% 43%;        /* green */
+    --correct-foreground: 0 0% 100%;
+    --present: 49 51% 47%;         /* yellow */
+    --present-foreground: 0 0% 100%;
+    --absent: 200 4% 49%;          /* grey */
+    --absent-foreground: 0 0% 100%;
+
+    --key-default: 200 7% 81%;
+    --key-default-foreground: 0 0% 10%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 10%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 80%;
+
+    --tile-empty: 0 0% 8%;
+    --tile-empty-border: 0 0% 23%;
+    --tile-filled-border: 0 0% 40%;
+
+    --correct: 115 29% 43%;
+    --present: 49 51% 47%;
+    --absent: 240 2% 23%;
+
+    --key-default: 200 4% 41%;
+    --key-default-foreground: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+}
+
+@layer utilities {
+  .animate-flip {
+    animation: flip 0.6s ease forwards;
+  }
+  .animate-pop {
+    animation: pop 0.1s ease;
+  }
+  .animate-shake {
+    animation: shake 0.5s ease;
+  }
+  .animate-bounce-tile {
+    animation: bounce-tile 0.6s ease;
+  }
+}
+
+@keyframes flip {
+  0% { transform: rotateX(0); }
+  50% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0); }
+}
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+@keyframes bounce-tile {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+  70% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
