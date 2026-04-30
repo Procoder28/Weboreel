@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Fresh & energetic light theme */
+    --background: 80 40% 98%;
+    --foreground: 150 30% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 150 30% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 30% 12%;
+
+    --primary: 142 72% 38%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 95 85% 60%;
+
+    --secondary: 140 30% 94%;
+    --secondary-foreground: 150 30% 18%;
+
+    --muted: 140 20% 95%;
+    --muted-foreground: 150 12% 42%;
+
+    --accent: 30 96% 58%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 140 20% 88%;
+    --input: 140 20% 90%;
+    --ring: 142 72% 38%;
+
+    --radius: 1rem;
+
+    --gradient-hero: linear-gradient(135deg, hsl(142 72% 38%) 0%, hsl(95 85% 55%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(30 96% 58%) 0%, hsl(45 95% 60%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(80 50% 97%) 0%, hsl(140 40% 94%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(140 30% 97%) 100%);
+
+    --shadow-soft: 0 4px 20px -4px hsl(142 50% 30% / 0.12);
+    --shadow-glow: 0 10px 40px -10px hsl(142 72% 45% / 0.4);
+    --shadow-accent: 0 8px 30px -8px hsl(30 96% 50% / 0.45);
+
+    --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 150 25% 7%;
+    --foreground: 80 30% 96%;
+
+    --card: 150 22% 10%;
+    --card-foreground: 80 30% 96%;
+
+    --popover: 150 22% 10%;
+    --popover-foreground: 80 30% 96%;
+
+    --primary: 95 75% 55%;
+    --primary-foreground: 150 30% 10%;
+    --primary-glow: 142 72% 50%;
+
+    --secondary: 150 18% 16%;
+    --secondary-foreground: 80 30% 96%;
+
+    --muted: 150 15% 14%;
+    --muted-foreground: 140 10% 65%;
+
+    --accent: 30 96% 60%;
+    --accent-foreground: 150 30% 10%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 150 15% 20%;
+    --input: 150 15% 18%;
+    --ring: 95 75% 55%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(142 72% 35%) 0%, hsl(95 75% 50%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(30 96% 55%) 0%, hsl(45 95% 58%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(150 25% 7%) 0%, hsl(150 22% 11%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(150 22% 11%) 0%, hsl(150 20% 13%) 100%);
+
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 10px 40px -10px hsl(95 75% 50% / 0.35);
+    --shadow-accent: 0 8px 30px -8px hsl(30 96% 50% / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--gradient-soft);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  .text-gradient {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .shadow-accent { box-shadow: var(--shadow-accent); }
+  .transition-smooth { transition: all 0.3s var(--transition-smooth); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-fade-up { animation: fade-up 0.6s var(--transition-smooth) both; }
