@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* TypeRush Design System
+   Dark, modern, focused. Mint accent on deep ink. All colors HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 222 30% 7%;
+    --foreground: 160 15% 92%;
+
+    --card: 222 28% 10%;
+    --card-foreground: 160 15% 92%;
+
+    --popover: 222 28% 10%;
+    --popover-foreground: 160 15% 92%;
+
+    --primary: 160 84% 55%;
+    --primary-foreground: 222 47% 8%;
+
+    --secondary: 222 22% 16%;
+    --secondary-foreground: 160 15% 92%;
+
+    --muted: 222 18% 18%;
+    --muted-foreground: 215 14% 60%;
+
+    --accent: 160 84% 55%;
+    --accent-foreground: 222 47% 8%;
+
+    --destructive: 0 84% 62%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 18% 18%;
+    --input: 222 18% 18%;
+    --ring: 160 84% 55%;
+
+    /* Typing-specific tokens */
+    --type-untyped: 215 14% 38%;
+    --type-correct: 160 15% 92%;
+    --type-wrong: 0 84% 62%;
+    --type-wrong-bg: 0 84% 62% / 0.18;
+    --type-cursor: 160 84% 55%;
+
+    --gradient-hero: radial-gradient(1200px 600px at 50% -10%, hsl(160 84% 55% / 0.18), transparent 60%),
+                     radial-gradient(800px 500px at 90% 10%, hsl(195 90% 55% / 0.10), transparent 60%);
+    --gradient-primary: linear-gradient(135deg, hsl(160 84% 55%), hsl(180 80% 50%));
+    --shadow-glow: 0 10px 40px -10px hsl(160 84% 55% / 0.45);
+    --shadow-card: 0 8px 30px -12px hsl(222 80% 2% / 0.6);
+
+    --radius: 0.875rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Sora', system-ui, -apple-system, sans-serif;
+    background-image: var(--gradient-hero);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+}
+
+@layer components {
+  .type-char {
+    @apply transition-colors duration-75;
+    color: hsl(var(--type-untyped));
+  }
+  .type-char.correct {
+    color: hsl(var(--type-correct));
+  }
+  .type-char.wrong {
+    color: hsl(var(--type-wrong));
+    background-color: hsl(var(--type-wrong-bg));
+    border-radius: 3px;
+  }
+  .type-char.current {
+    position: relative;
+  }
+  .type-char.current::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: hsl(var(--type-cursor));
+    border-radius: 2px;
+    animation: caret 1s steps(2, start) infinite;
+  }
+
+  .glow-ring {
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+@keyframes caret {
+  to { opacity: 0; }
+}
