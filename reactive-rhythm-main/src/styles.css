@@ -1,0 +1,285 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-calm: var(--calm);
+  --color-tension: var(--tension);
+  --color-glitch: var(--glitch);
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* Mood: calm (default) */
+  --background: oklch(0.14 0.01 260);
+  --foreground: oklch(0.95 0.01 250);
+  --card: oklch(0.18 0.012 260);
+  --card-foreground: oklch(0.95 0.01 250);
+  --popover: oklch(0.16 0.012 260);
+  --popover-foreground: oklch(0.95 0.01 250);
+  --primary: oklch(0.9 0.02 240);
+  --primary-foreground: oklch(0.14 0.01 260);
+  --secondary: oklch(0.24 0.015 260);
+  --secondary-foreground: oklch(0.95 0.01 250);
+  --muted: oklch(0.22 0.012 260);
+  --muted-foreground: oklch(0.62 0.02 255);
+  --accent: oklch(0.72 0.14 210);
+  --accent-foreground: oklch(0.12 0.01 260);
+  --destructive: oklch(0.62 0.24 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 10%);
+  --ring: oklch(0.72 0.14 210);
+
+  --calm: oklch(0.72 0.14 210);
+  --tension: oklch(0.68 0.22 30);
+  --glitch: oklch(0.7 0.28 340);
+
+  --gradient-calm: radial-gradient(
+      ellipse at 30% 20%,
+      oklch(0.35 0.08 240 / 0.45),
+      transparent 60%
+    ),
+    radial-gradient(ellipse at 80% 80%, oklch(0.3 0.1 290 / 0.35), transparent 60%),
+    linear-gradient(180deg, oklch(0.14 0.01 260), oklch(0.1 0.01 260));
+
+  --gradient-tension: radial-gradient(
+      ellipse at 50% 30%,
+      oklch(0.35 0.18 20 / 0.4),
+      transparent 55%
+    ),
+    radial-gradient(ellipse at 20% 90%, oklch(0.3 0.16 340 / 0.35), transparent 60%),
+    linear-gradient(180deg, oklch(0.1 0.02 300), oklch(0.08 0.02 320));
+
+  --shadow-soft: 0 20px 60px -20px oklch(0 0 0 / 0.6);
+  --shadow-glow: 0 0 60px -10px color-mix(in oklab, var(--accent) 40%, transparent);
+
+  --ease-cinema: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-mood: background 2.4s var(--ease-cinema),
+    color 1.2s var(--ease-cinema), filter 1.2s var(--ease-cinema);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background-image: var(--gradient-calm);
+    background-attachment: fixed;
+    transition: var(--transition-mood);
+  }
+
+  body[data-mood="tense"] {
+    background-image: var(--gradient-tension);
+    filter: contrast(1.05) saturate(1.1);
+  }
+
+  body[data-mood="glitch"] {
+    background-image: var(--gradient-tension);
+    filter: contrast(1.15) saturate(1.25) hue-rotate(8deg);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .breathing {
+    animation: breathe 6s ease-in-out infinite;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glitch-text {
+    position: relative;
+    display: inline-block;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.75;
+    mix-blend-mode: screen;
+  }
+
+  .glitch-text::before {
+    color: oklch(0.75 0.25 340);
+    transform: translate(-1px, 0);
+    animation: glitch-shift 2.2s steps(2, end) infinite;
+  }
+
+  .glitch-text::after {
+    color: oklch(0.75 0.22 200);
+    transform: translate(1px, 0);
+    animation: glitch-shift 1.7s steps(2, end) infinite reverse;
+  }
+
+  .scanlines::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      oklch(0 0 0 / 0.12) 2px 3px
+    );
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    opacity: 0;
+    transition: opacity 1.2s var(--ease-cinema);
+    z-index: 40;
+  }
+
+  body[data-mood="tense"] .scanlines::after {
+    opacity: 0.35;
+  }
+
+  body[data-mood="glitch"] .scanlines::after {
+    opacity: 0.6;
+  }
+
+  .vignette::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, oklch(0 0 0 / 0.7) 100%);
+    pointer-events: none;
+    z-index: 30;
+    transition: opacity 1.6s var(--ease-cinema);
+  }
+
+  .cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 420px;
+    height: 420px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--accent) 22%, transparent) 0%,
+      transparent 60%
+    );
+    z-index: 20;
+    mix-blend-mode: screen;
+    transition: background 1.2s var(--ease-cinema),
+      width 0.8s var(--ease-cinema), height 0.8s var(--ease-cinema);
+  }
+
+  body[data-mood="tense"] .cursor-glow {
+    background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--tension) 28%, transparent) 0%,
+      transparent 60%
+    );
+  }
+
+  body[data-mood="glitch"] .cursor-glow {
+    background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--glitch) 32%, transparent) 0%,
+      transparent 55%
+    );
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.015);
+  }
+}
+
+@keyframes glitch-shift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    clip-path: inset(0 0 0 0);
+  }
+  20% {
+    transform: translate(-2px, 1px);
+    clip-path: inset(10% 0 60% 0);
+  }
+  40% {
+    transform: translate(2px, -1px);
+    clip-path: inset(70% 0 10% 0);
+  }
+  60% {
+    transform: translate(-1px, 2px);
+    clip-path: inset(30% 0 40% 0);
+  }
+  80% {
+    transform: translate(1px, -2px);
+    clip-path: inset(50% 0 20% 0);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fade-up 1.2s var(--ease-cinema) both;
+}
